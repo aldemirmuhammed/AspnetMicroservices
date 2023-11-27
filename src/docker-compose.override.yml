@@ -1,0 +1,99 @@
+version: '3.4'
+
+services:
+
+#Database
+  aspnetmicroservices.catalogdb:
+    container_name: aspnetmicroservices.catalogdb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  aspnetmicroservices.observabilitydb:
+    container_name: aspnetmicroservices.observabilitydb
+    restart: always
+    ports:
+     - "6379:6379"
+  aspnetmicroservices.basketdb:
+    container_name: aspnetmicroservices.basketdb
+    restart: always
+    ports:
+     - "6379:6379"
+
+  #aspnetmicroservices.catalog.api:
+  #  container_name: aspnetmicroservices.catalog.api
+  #  environment:
+  #    - ASPNETCORE_ENVIRONMENT=Development
+  #    - "DatabaseSettings:ConnectionString=mongodb://aspnetmicroservices.catalogdb:27017"
+  #    - "ElasticSearch:BaseUrl=http://elasticsearch:9200"
+  #    - "Redis:Host=aspnetmicroservices.observabilitydb"
+  #    - "Redis:Port=6379"
+  #  ports:
+  #    - 5001:80
+  #  depends_on:
+  #    - aspnetmicroservices.catalogdb
+  #    - aspnetmicroservices.observabilitydb
+  aspnetmicroservices.basket.api:
+    container_name: aspnetmicroservices.basket.api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "CacheSettings:ConnectionString=aspnetmicroservices.basketdb:6379"
+    depends_on:
+      - aspnetmicroservices.basketdb
+    ports:
+      - 5002:80
+#Observability
+  aspnetmicroservices.jaeger:
+    container_name: aspnetmicroservices.jaegercontainer
+    ports:
+     - "4317:4317" #grpx
+     - "4318:4318" #http
+     - "16686:16686" #uı
+
+  aspnetmicroservices.rabbitmq:
+    container_name: aspnetmicroservices.rabbitmq
+    ports:
+     - 5672:5672
+     - 15672:15672
+
+  aspnetmicroservices.elasticsearch:
+    container_name: aspnetmicroservices.elasticsearch
+    ports:
+     - 9200:9200
+    environment:
+     - xpack.security.enabled=false
+     - "discovery.type=single-node"
+     - ELASTIC_USERNAME=elastic
+     - ELASTIC_PASSWORD=DkIedPPSCb
+    volumes:
+     - elastic_db:/usr/share/elasticsearch/data
+
+  aspnetmicroservices.kibana:
+    container_name: aspnetmicroservices.kibana
+    ports:
+     - 5601:5601
+    environment:
+     - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    depends_on:
+     - aspnetmicroservices.elasticsearch
+
+  aspnetmicroservices.metric.api:
+    container_name: aspnetmicroservices.metric.api
+    ports:
+     - 5010:80
+
+  aspnetmicroservices.prometheus:
+    container_name: aspnetmicroservices.prometheus
+    ports:
+     - 9090:9090
+
+
+volumes:
+  elastic_db:
+  #zipkin:
+  #  container_name: zipkincontainer
+  #  ports:
+  #   - "9411:9411"  
+

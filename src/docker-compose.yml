@@ -1,0 +1,57 @@
+version: '3.4'
+
+services:
+
+  #Database
+  aspnetmicroservices.catalogdb:
+    image: mongo
+
+  aspnetmicroservices.observabilitydb:
+    image: redis:7.0
+
+  basketdb:
+    image: redis:alpine
+
+  #aspnetmicroservices.catalog.api:
+  #  #image: ${DOCKER_REGISTRY-}catalogapi
+  #  image: aspnetmicroservices.catalog.api.image
+  #  build:
+  #    context: .
+  #    dockerfile: Services/Catalog/Catalog.API/Dockerfile
+  
+  aspnetmicroservices.basket.api:
+    image: aspnetmicroservices.basket.api
+    build:
+      context: .
+      dockerfile: Services/Basket/Basket.API/Dockerfile
+
+  #Observability
+  aspnetmicroservices.jaeger:
+    image: jaegertracing/all-in-one:1.49
+
+  aspnetmicroservices.rabbitmq:
+    image: rabbitmq:3.12.2-management
+
+  aspnetmicroservices.elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.8.1 
+    
+  aspnetmicroservices.kibana:
+    image: docker.elastic.co/kibana/kibana:8.8.1
+
+  aspnetmicroservices.metric.api:
+    image: metric.api.image
+    build:
+     context: .
+     dockerfile: Shared/Metric.API/Dockerfile
+
+  aspnetmicroservices.prometheus:
+    image: prom/prometheus:v2.37.9
+    volumes: 
+     - ./prometheus.yml:/etc/prometheus/prometheus.yml
+  #zipkin:
+  #  image: openzipkin/zipkin:2.24
+
+
+volumes:
+  mongo_data:
+     
