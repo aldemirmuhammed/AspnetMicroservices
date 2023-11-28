@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
 
-#Database
+  #Database
   aspnetmicroservices.catalogdb:
     container_name: aspnetmicroservices.catalogdb
     restart: always
@@ -15,26 +15,27 @@ services:
     container_name: aspnetmicroservices.observabilitydb
     restart: always
     ports:
-     - "6379:6379"
+     - "6378:6379"
   aspnetmicroservices.basketdb:
     container_name: aspnetmicroservices.basketdb
     restart: always
     ports:
      - "6379:6379"
 
-  #aspnetmicroservices.catalog.api:
-  #  container_name: aspnetmicroservices.catalog.api
-  #  environment:
-  #    - ASPNETCORE_ENVIRONMENT=Development
-  #    - "DatabaseSettings:ConnectionString=mongodb://aspnetmicroservices.catalogdb:27017"
-  #    - "ElasticSearch:BaseUrl=http://elasticsearch:9200"
-  #    - "Redis:Host=aspnetmicroservices.observabilitydb"
-  #    - "Redis:Port=6379"
-  #  ports:
-  #    - 5001:80
-  #  depends_on:
-  #    - aspnetmicroservices.catalogdb
-  #    - aspnetmicroservices.observabilitydb
+  #Services
+  aspnetmicroservices.catalog.api:
+    container_name: aspnetmicroservices.catalog.api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "DatabaseSettings:ConnectionString=mongodb://aspnetmicroservices.catalogdb:27017"
+      - "ElasticSearch:BaseUrl=http://elasticsearch:9200"
+      - "Redis:Host=aspnetmicroservices.observabilitydb"
+      - "Redis:Port=6379"
+    ports:
+      - 5001:80
+    depends_on:
+      - aspnetmicroservices.catalogdb
+      - aspnetmicroservices.observabilitydb
   aspnetmicroservices.basket.api:
     container_name: aspnetmicroservices.basket.api
     environment:
@@ -44,6 +45,7 @@ services:
       - aspnetmicroservices.basketdb
     ports:
       - 5002:80
+
 #Observability
   aspnetmicroservices.jaeger:
     container_name: aspnetmicroservices.jaegercontainer

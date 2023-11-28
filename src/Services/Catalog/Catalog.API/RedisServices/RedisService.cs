@@ -12,7 +12,7 @@ namespace Catalog.API.RedisServices
             var port = configuration.GetSection("Redis")["Port"];
 
 
-            var config = $"{host}:{port}";
+            var config = $"{host}:{port},abortConnect=false";
             _connectionMultiplexer = ConnectionMultiplexer.Connect(config);
         }
         public ConnectionMultiplexer GetConnectionMultiplexer => _connectionMultiplexer;

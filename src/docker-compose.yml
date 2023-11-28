@@ -9,15 +9,14 @@ services:
   aspnetmicroservices.observabilitydb:
     image: redis:7.0
 
-  basketdb:
+  aspnetmicroservices.basketdb:
     image: redis:alpine
 
-  #aspnetmicroservices.catalog.api:
-  #  #image: ${DOCKER_REGISTRY-}catalogapi
-  #  image: aspnetmicroservices.catalog.api.image
-  #  build:
-  #    context: .
-  #    dockerfile: Services/Catalog/Catalog.API/Dockerfile
+  aspnetmicroservices.catalog.api:
+    image: aspnetmicroservices.catalog.api.image
+    build:
+      context: .
+      dockerfile: Services/Catalog/Catalog.API/Dockerfile
   
   aspnetmicroservices.basket.api:
     image: aspnetmicroservices.basket.api
