@@ -31,7 +31,7 @@ namespace Catalog.API.Repositories
 
         public async Task<ResponseDto<IEnumerable<Product>>> GetProductsAsync()
         {
-            using var activity = ActivitySourceProvider.Source.StartActivity();
+            //using var activity = ActivitySourceProvider.Source.StartActivity();
 
             var result = await _context.Products.Find(p => true).ToListAsync();
             if (result == null)

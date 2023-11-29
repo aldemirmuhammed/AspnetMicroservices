@@ -12,6 +12,10 @@ services:
   aspnetmicroservices.basketdb:
     image: redis:alpine
 
+  aspnetmicroservices.discountdb:
+    image: postgres
+
+  #Services
   aspnetmicroservices.catalog.api:
     image: aspnetmicroservices.catalog.api.image
     build:
@@ -19,10 +23,16 @@ services:
       dockerfile: Services/Catalog/Catalog.API/Dockerfile
   
   aspnetmicroservices.basket.api:
-    image: aspnetmicroservices.basket.api
+    image: aspnetmicroservices.basket.api.image
     build:
       context: .
       dockerfile: Services/Basket/Basket.API/Dockerfile
+
+  aspnetmicroservices.discount.api:
+    image: aspnetmicroservices.discount.api.image
+    build:
+      context: .
+      dockerfile: Services/Discount/Discount.API/Dockerfile
 
   #Observability
   aspnetmicroservices.jaeger:
@@ -47,10 +57,22 @@ services:
     image: prom/prometheus:v2.37.9
     volumes: 
      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+
+  #Tools
+  #pgadmin:
+  #  image: dpage/pgadmin4  
+
+
   #zipkin:
   #  image: openzipkin/zipkin:2.24
 
 
+
+
 volumes:
-  mongo_data:
+  aspnetmicroservices_mongo_data:
+  aspnetmicroservices_postgres_data:
+  #pgadmin_data:
+  aspnetmicroservices_elastic_db:
      
+
