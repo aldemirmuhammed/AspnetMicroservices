@@ -9,7 +9,7 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - mongo_data:/data/db
+      - aspnetmicroservices_mongo_data:/data/db
 
   aspnetmicroservices.observabilitydb:
     container_name: aspnetmicroservices.observabilitydb
@@ -22,6 +22,18 @@ services:
     ports:
      - "6379:6379"
 
+  aspnetmicroservices.discountdb:
+    container_name: aspnetmicroservices.discountdb
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin1234
+      - POSTGRES_DB=DiscountDb
+    restart: always
+    ports:
+        - "5432:5432"
+    volumes:
+      - aspnetmicroservices_postgres_data:/var/lib/postgresql/data/
+
   #Services
   aspnetmicroservices.catalog.api:
     container_name: aspnetmicroservices.catalog.api
@@ -32,10 +44,11 @@ services:
       - "Redis:Host=aspnetmicroservices.observabilitydb"
       - "Redis:Port=6379"
     ports:
-      - 5001:80
+      - 8001:80
     depends_on:
       - aspnetmicroservices.catalogdb
       - aspnetmicroservices.observabilitydb
+
   aspnetmicroservices.basket.api:
     container_name: aspnetmicroservices.basket.api
     environment:
@@ -44,7 +57,19 @@ services:
     depends_on:
       - aspnetmicroservices.basketdb
     ports:
-      - 5002:80
+      - 8002:80
+
+  aspnetmicroservices.discount.api:
+    container_name: aspnetmicroservices.discount.api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "DatabaseSettings:ConnectionString=Server=aspnetmicroservices.discountdb;Port=5432;Database=DiscountDb;User Id=admin;Password=admin1234;"
+      - "ElasticSearch:BaseUrl=http://elasticsearch:9200"
+    depends_on:
+      - aspnetmicroservices.observabilitydb
+      - aspnetmicroservices.discountdb
+    ports:
+      - 8003:80
 
 #Observability
   aspnetmicroservices.jaeger:
@@ -70,7 +95,7 @@ services:
      - ELASTIC_USERNAME=elastic
      - ELASTIC_PASSWORD=DkIedPPSCb
     volumes:
-     - elastic_db:/usr/share/elasticsearch/data
+     - aspnetmicroservices_elastic_db:/usr/share/elasticsearch/data
 
   aspnetmicroservices.kibana:
     container_name: aspnetmicroservices.kibana
@@ -91,11 +116,30 @@ services:
     ports:
      - 9090:9090
 
+  #Tools
+  #pgadmin:
+  #  container_name: pgadmin
+  #  environment:
+  #    - PGADMIN_DEFAULT_EMAIL=admin@aspnetrun.com
+  #    - PGADMIN_DEFAULT_PASSWORD=admin1234
+  #  restart: always
+  #  ports:
+  #      - "5050:80"
+  #  volumes:
+  #    - pgadmin_data:/root/.pgadmin
+
 
 volumes:
-  elastic_db:
+  aspnetmicroservices_mongo_data:
+  aspnetmicroservices_postgres_data:
+  #pgadmin_data:
+  aspnetmicroservices_elastic_db:
+
+
+
   #zipkin:
   #  container_name: zipkincontainer
   #  ports:
   #   - "9411:9411"  
+
 
