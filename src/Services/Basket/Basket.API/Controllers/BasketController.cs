@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Basket.API.Entities;
+using Basket.API.GrpcServices;
 using Basket.API.Repositories.Interfaces;
 using Common.Shared.CustomControllerBase;
 using MassTransit;
@@ -14,16 +15,18 @@ namespace Basket.API.Controllers
     public class BasketController : CustomBaseController
     {
         private readonly IBasketRepository _repository;
-        //private readonly DiscountGrpcService _discountGrpcService;
-        private readonly IPublishEndpoint _publishEndpoint;
-        private readonly IMapper _mapper;
+        private readonly DiscountGrpcService _discountGrpcService;
+        private readonly ILogger<BasketController> _logger;
+        //private readonly IPublishEndpoint _publishEndpoint;
+        //private readonly IMapper _mapper;
 
-        public BasketController(IBasketRepository repository,/* DiscountGrpcService discountGrpcService,*/ IPublishEndpoint publishEndpoint, IMapper mapper)
+        public BasketController(IBasketRepository repository, DiscountGrpcService discountGrpcService/*, IPublishEndpoint publishEndpoint, IMapper mapper*/, ILogger<BasketController> logger)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
-            //_discountGrpcService = discountGrpcService ?? throw new ArgumentNullException(nameof(discountGrpcService));
-            _publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
-            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _discountGrpcService = discountGrpcService ?? throw new ArgumentNullException(nameof(discountGrpcService));
+            _logger = logger;
+            //_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
+            //_mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         [HttpGet("{userName}", Name = "GetBasket")]
@@ -41,8 +44,12 @@ namespace Basket.API.Controllers
             // Communicate with Discount.Grpc and calculate lastest prices of products into sc
             foreach (var item in basket.Items)
             {
-                //var coupon = await _discountGrpcService.GetDiscount(item.ProductName);
-                //item.Price -= coupon.Amount;
+                var coupon = await _discountGrpcService.GetDiscount(item.ProductName);
+                var oldPrice = item.Price;
+                item.Price -= coupon.Amount;
+
+                _logger.LogInformation("Updated item. Old Price={@oldPrice}, New Price={@item.Price}, Total Amount={@coupon.Amount}"
+                    , oldPrice, item.Price, coupon.Amount);
             }
 
             return Ok(await _repository.UpdateBasket(basket));

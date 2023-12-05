@@ -29,6 +29,8 @@ namespace Common.Shared
 
         private async Task AddRequestBodyContentToActivityTags(HttpContext context)
         {
+            if (context.Request.ContentType == "application/grpc")
+                return;
             context.Request.EnableBuffering();
             var requestBodyStreamReader = new StreamReader(context.Request.Body);
             var requestBodyContent = await requestBodyStreamReader.ReadToEndAsync();
@@ -39,7 +41,8 @@ namespace Common.Shared
 
         private async Task AddResponseBodyContentToActivityTags(HttpContext context)
         {
-
+            if (context.Response.ContentType == "application/grpc")
+                return;
             var originalResponse = context.Response.Body;
 
             await using var responseBodyMemoryStream = _recyclableMemoryStreamManager.GetStream();
