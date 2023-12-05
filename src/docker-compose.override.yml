@@ -3,6 +3,8 @@ version: '3.4'
 services:
 
   #Database
+
+  #catalogdb
   aspnetmicroservices.catalogdb:
     container_name: aspnetmicroservices.catalogdb
     restart: always
@@ -11,17 +13,21 @@ services:
     volumes:
       - aspnetmicroservices_mongo_data:/data/db
 
+  #observabilitydb
   aspnetmicroservices.observabilitydb:
     container_name: aspnetmicroservices.observabilitydb
     restart: always
     ports:
      - "6378:6379"
+
+  #basketdb
   aspnetmicroservices.basketdb:
     container_name: aspnetmicroservices.basketdb
     restart: always
     ports:
      - "6379:6379"
 
+  #discountdb
   aspnetmicroservices.discountdb:
     container_name: aspnetmicroservices.discountdb
     environment:
@@ -35,12 +41,14 @@ services:
       - aspnetmicroservices_postgres_data:/var/lib/postgresql/data/
 
   #Services
+
+  #catalog.api
   aspnetmicroservices.catalog.api:
     container_name: aspnetmicroservices.catalog.api
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - "DatabaseSettings:ConnectionString=mongodb://aspnetmicroservices.catalogdb:27017"
-      - "ElasticSearch:BaseUrl=http://elasticsearch:9200"
+      - "ElasticSearch:BaseUrl=http://aspnetmicroservices.elasticsearch:9200"
       - "Redis:Host=aspnetmicroservices.observabilitydb"
       - "Redis:Port=6379"
     ports:
@@ -49,29 +57,49 @@ services:
       - aspnetmicroservices.catalogdb
       - aspnetmicroservices.observabilitydb
 
+  #basket.api
   aspnetmicroservices.basket.api:
     container_name: aspnetmicroservices.basket.api
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - "CacheSettings:ConnectionString=aspnetmicroservices.basketdb:6379"
+      - "GrpcSettings:DiscountUrl=http://aspnetmicroservices.discount.grpc"
+      - "ElasticSearch:BaseUrl=http://aspnetmicroservices.elasticsearch:9200"
+
     depends_on:
       - aspnetmicroservices.basketdb
     ports:
       - 8002:80
 
+  #discount.api
   aspnetmicroservices.discount.api:
     container_name: aspnetmicroservices.discount.api
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - "DatabaseSettings:ConnectionString=Server=aspnetmicroservices.discountdb;Port=5432;Database=DiscountDb;User Id=admin;Password=admin1234;"
-      - "ElasticSearch:BaseUrl=http://elasticsearch:9200"
+      - "ElasticSearch:BaseUrl=http://aspnetmicroservices.elasticsearch:9200"
     depends_on:
       - aspnetmicroservices.observabilitydb
       - aspnetmicroservices.discountdb
     ports:
       - 8003:80
 
+  #discount.grpc
+  aspnetmicroservices.discount.grpc:
+    container_name: aspnetmicroservices.discount.grpc
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "DatabaseSettings:ConnectionString=Server=aspnetmicroservices.discountdb;Port=5432;Database=DiscountDb;User Id=admin;Password=admin1234;"
+      - "ElasticSearch:BaseUrl=http://aspnetmicroservices.elasticsearch:9200"
+    depends_on:
+      - aspnetmicroservices.discountdb
+    ports:
+      - "8004:80"
+
+ 
 #Observability
+
+  #jaeger
   aspnetmicroservices.jaeger:
     container_name: aspnetmicroservices.jaegercontainer
     ports:
@@ -79,12 +107,14 @@ services:
      - "4318:4318" #http
      - "16686:16686" #uı
 
+  #rabbitmq
   aspnetmicroservices.rabbitmq:
     container_name: aspnetmicroservices.rabbitmq
     ports:
      - 5672:5672
      - 15672:15672
 
+  #elasticsearch
   aspnetmicroservices.elasticsearch:
     container_name: aspnetmicroservices.elasticsearch
     ports:
@@ -97,36 +127,28 @@ services:
     volumes:
      - aspnetmicroservices_elastic_db:/usr/share/elasticsearch/data
 
+  #kibana
   aspnetmicroservices.kibana:
     container_name: aspnetmicroservices.kibana
     ports:
      - 5601:5601
     environment:
-     - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+     - ELASTICSEARCH_HOSTS=http://aspnetmicroservices.elasticsearch:9200
     depends_on:
      - aspnetmicroservices.elasticsearch
 
+  #metric.api
   aspnetmicroservices.metric.api:
     container_name: aspnetmicroservices.metric.api
     ports:
      - 5010:80
 
+  #prometheus
   aspnetmicroservices.prometheus:
     container_name: aspnetmicroservices.prometheus
     ports:
      - 9090:9090
 
-  #Tools
-  #pgadmin:
-  #  container_name: pgadmin
-  #  environment:
-  #    - PGADMIN_DEFAULT_EMAIL=admin@aspnetrun.com
-  #    - PGADMIN_DEFAULT_PASSWORD=admin1234
-  #  restart: always
-  #  ports:
-  #      - "5050:80"
-  #  volumes:
-  #    - pgadmin_data:/root/.pgadmin
 
 
 volumes:
@@ -136,10 +158,5 @@ volumes:
   aspnetmicroservices_elastic_db:
 
 
-
-  #zipkin:
-  #  container_name: zipkincontainer
-  #  ports:
-  #   - "9411:9411"  
 
 

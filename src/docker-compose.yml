@@ -34,6 +34,13 @@ services:
       context: .
       dockerfile: Services/Discount/Discount.API/Dockerfile
 
+  aspnetmicroservices.discount.grpc:
+    image: aspnetmicroservices.discount.grpc.image
+    build:
+      context: .
+      dockerfile: Services/Discount/Discount.Grpc/Dockerfile
+
+
   #Observability
   aspnetmicroservices.jaeger:
     image: jaegertracing/all-in-one:1.49
@@ -69,10 +76,13 @@ services:
 
 
 
+
+
 volumes:
   aspnetmicroservices_mongo_data:
   aspnetmicroservices_postgres_data:
   #pgadmin_data:
   aspnetmicroservices_elastic_db:
      
+
 
