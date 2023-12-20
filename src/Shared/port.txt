@@ -2,3 +2,4 @@ catalog.api->8001
 basket.api -> 8002
 discount.api ->8003
 discount.grpc ->8004
+ordering ->8005
