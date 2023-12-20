@@ -15,6 +15,10 @@ services:
   aspnetmicroservices.discountdb:
     image: postgres
 
+  aspnetmicroservices.orderdb:
+    image: mcr.microsoft.com/mssql/server:2017-latest
+
+
   #Services
   aspnetmicroservices.catalog.api:
     image: aspnetmicroservices.catalog.api.image
@@ -40,6 +44,11 @@ services:
       context: .
       dockerfile: Services/Discount/Discount.Grpc/Dockerfile
 
+  aspnetmicroservices.ordering.api:
+    image: aspnetmicroservices.ordering.api.image
+    build:
+      context: .
+      dockerfile: Services/Ordering/Ordering.API/Dockerfile
 
   #Observability
   aspnetmicroservices.jaeger:
@@ -78,11 +87,14 @@ services:
 
 
 
+
+
 volumes:
   aspnetmicroservices_mongo_data:
   aspnetmicroservices_postgres_data:
   #pgadmin_data:
   aspnetmicroservices_elastic_db:
      
+
 
 

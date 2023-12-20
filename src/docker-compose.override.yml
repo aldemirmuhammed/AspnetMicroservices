@@ -40,6 +40,17 @@ services:
     volumes:
       - aspnetmicroservices_postgres_data:/var/lib/postgresql/data/
 
+  
+  #orderdb
+  aspnetmicroservices.orderdb:
+    container_name: aspnetmicroservices.orderdb
+    environment:
+        SA_PASSWORD: "SwN12345678"
+        ACCEPT_EULA: "Y"
+    restart: always
+    ports:
+        - "1433:1433"
+
   #Services
 
   #catalog.api
@@ -96,6 +107,19 @@ services:
     ports:
       - "8004:80"
 
+  #order.api
+  aspnetmicroservices.ordering.api:
+    container_name: aspnetmicroservices.ordering.api
+    environment:
+        - ASPNETCORE_ENVIRONMENT=Development
+        - "ConnectionStrings:OrderingConnectionString=Server=aspnetmicroservices.orderdb;Database=OrderDb;User Id=sa;Password=SwN12345678;TrustServerCertificate=True"            
+        - "EventBusSettings:HostAddress=amqp://guest:guest@rabbitmq:5672"
+        - "ElasticSearch:BaseUrl=http://aspnetmicroservices.elasticsearch:9200"
+    depends_on:
+        - aspnetmicroservices.orderdb
+        - aspnetmicroservices.rabbitmq
+    ports:
+        - "8005:80"
  
 #Observability
 
@@ -151,11 +175,13 @@ services:
 
 
 
+
 volumes:
   aspnetmicroservices_mongo_data:
   aspnetmicroservices_postgres_data:
   #pgadmin_data:
   aspnetmicroservices_elastic_db:
+
 
 
 
