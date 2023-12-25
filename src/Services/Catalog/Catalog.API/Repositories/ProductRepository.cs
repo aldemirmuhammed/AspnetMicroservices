@@ -7,7 +7,6 @@ using OpenTelemetry.Shared;
 using System.Diagnostics;
 using System.Net.Mail;
 using System.Net;
-using static MassTransit.ValidationResultExtensions;
 using Catalog.API.RedisServices;
 using Elasticsearch.Net;
 using Catalog.API.Controllers;
