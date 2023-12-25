@@ -11,6 +11,7 @@
 
 		<ItemGroup>
 				<PackageReference Include="AutoMapper" Version="12.0.1" />
+				<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
 				<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.9" />
 				<PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.0" />
 				<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
@@ -22,6 +23,7 @@
 		</ItemGroup>
 	
 		<ItemGroup>
+		  <ProjectReference Include="..\..\..\BuildingBlocks\EventBus.Messages\EventBus.Messages.csproj" />
 		  <ProjectReference Include="..\..\..\Shared\Common.Shared\Common.Shared.csproj" />
 		  <ProjectReference Include="..\..\..\Shared\Logging.Shared\Logging.Shared.csproj" />
 		  <ProjectReference Include="..\..\..\Shared\OpenTelemetry.Shared\OpenTelemetry.Shared.csproj" />

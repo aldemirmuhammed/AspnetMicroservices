@@ -7,6 +7,7 @@ EXPOSE 80
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
 COPY ["Services/Basket/Basket.API/Basket.API.csproj", "Services/Basket/Basket.API/"]
+COPY ["BuildingBlocks/EventBus.Messages/EventBus.Messages.csproj", "BuildingBlocks/EventBus.Messages/"]
 COPY ["Shared/Common.Shared/Common.Shared.csproj", "Shared/Common.Shared/"]
 COPY ["Shared/Logging.Shared/Logging.Shared.csproj", "Shared/Logging.Shared/"]
 COPY ["Shared/OpenTelemetry.Shared/OpenTelemetry.Shared.csproj", "Shared/OpenTelemetry.Shared/"]
